@@ -34,7 +34,8 @@ wxWidgets: build_stage install_dir install_dir/wxWidgets-staticlib/bin/wx-config
 install_dir/wxWidgets-staticlib/bin/wx-config:
 	cd build_stage && wget https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.1/wxWidgets-3.2.1.tar.bz2 
 	cd build_stage && tar -xvjf wxWidgets-3.2.1.tar.bz2
-	cd build_stage/wxWidgets-3.2.1 && ./configure --with-opengl --with-libjpeg --disable-shared --enable-monolithic --with-libtiff --with-libpng --with-zlib --disable-sdltest --enable-unicode --enable-display --enable-propgrid --disable-webview --disable-webviewwebkit --prefix=${INSTALL_DIR}/wxWidgets-staticlib CXXFLAGS="-std=c++0x"
+	patch < wxWidgets_pngpriv_macos_15-4.patch
+	cd build_stage/wxWidgets-3.2.1 && ./configure --with-opengl --with-libjpeg --disable-shared --enable-monolithic --with-libtiff=builtin --with-libpng --with-zlib --disable-sdltest --enable-unicode --enable-display --enable-propgrid --disable-webview --disable-webviewwebkit --prefix=${INSTALL_DIR}/wxWidgets-staticlib CXXFLAGS="-std=c++0x"
 	cd build_stage/wxWidgets-3.2.1 && make -j${NPROC} && make install
 
 liquid-dsp: build_stage install_dir install_dir/lib/libliquid.dylib
@@ -62,7 +63,7 @@ nodep_modules: SoapySDRPlay
 
 librtlsdr: build_stage install_dir install_dir/lib/librtlsdr.dylib
 install_dir/lib/librtlsdr.dylib:
-	$(call BUILD_AND_INSTALL,rtlsdr,https://github.com/rtlsdrblog/rtl-sdr-blog.git,-DLIBUSB_INCLUDE_DIRS=/usr/local/include/libusb-1.0/ -DLIBUSB_LIBRARIES=/usr/local/lib/libusb-1.0.dylib)
+	$(call BUILD_AND_INSTALL,rtlsdr,https://github.com/rtlsdrblog/rtl-sdr-blog.git,-DLIBUSB_INCLUDE_DIRS=/opt/homebrew/Cellar/libusb/1.0.29/include/libusb-1.0 -DLIBUSB_LIBRARIES=/opt/homebrew/Cellar/libusb/1.0.29/lib/libusb-1.0.dylib)
 
 SoapyRTLSDR: SoapySDR $(SOAPY_MOD_PATH)/librtlsdrSupport.so
 $(SOAPY_MOD_PATH)/librtlsdrSupport.so: librtlsdr
